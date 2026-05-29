@@ -759,16 +759,16 @@ MonoBehaviour:
   m_OnEndEdit:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 11500000, guid: f3ebf5dcefc8d6f4a82449e695bdae6e, type: 3}
-        m_TargetAssemblyTypeName: UnityEditor.MonoScript, UnityEditor.CoreModule
-        m_MethodName: set_name
-        m_Mode: 5
+      - m_Target: {fileID: 1246884419}
+        m_TargetAssemblyTypeName: ChatManager, Assembly-CSharp
+        m_MethodName: SubmitMessage
+        m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: SendUserMessage
+          m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
   m_OnSubmit:
@@ -1443,7 +1443,7 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_TextWrappingMode: 0
+  m_TextWrappingMode: 1
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
   m_linkedTextComponent: {fileID: 0}
@@ -1564,7 +1564,7 @@ MonoBehaviour:
     serializedVersion: 2
     rgba: 4294967295
   m_fontSize: 33.1
-  m_fontSizeBase: 14
+  m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 20
@@ -1894,13 +1894,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3ebf5dcefc8d6f4a82449e695bdae6e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ChatManager
-  currentCharacter:
-    id: 
-    characterName: 
-    personality: 
-    speakingStyle: 
-    systemPrompt: 
-  currentConversation: []
   messagesContent: {fileID: 335385038}
   userMessagePrefab: {fileID: 2302854194445343332, guid: d752fd70210267f43aa9caa4e4dbc561, type: 3}
   aiMessagePrefab: {fileID: 4004490162722216890, guid: a8e0889a3a22af646b58db8c495e3cd1, type: 3}
@@ -2583,8 +2576,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a71f92813dbcb04fb962545fae3d4ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ContactListManager
-  contentParent: {fileID: 1776768047}
-  contactButtonPrefab: {fileID: 644063938505568532, guid: 126214d4b47c5b44d9d64f2a4071d26f, type: 3}
+  contactsContent: {fileID: 1776768047}
+  contactPrefab: {fileID: 644063938505568532, guid: 126214d4b47c5b44d9d64f2a4071d26f, type: 3}
+  chatManager: {fileID: 1246884419}
 --- !u!224 &2040381729 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 9109135408439620285, guid: a8e0889a3a22af646b58db8c495e3cd1, type: 3}
