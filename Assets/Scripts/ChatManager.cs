@@ -131,11 +131,17 @@ public class ChatManager : MonoBehaviour
         List<GroqMessage> messages =
             new List<GroqMessage>();
 
-        // prompt do personagem
+        // prompt do personagem com instrução de brevidade
+        string systemPromptWithLengthLimit =
+            currentCharacter.systemPrompt +
+            "\n\n[IMPORTANTE] Suas respostas devem ser CURTAS e CONCISAS, com no máximo 6-8 linhas. " +
+            "Seja direto, responda de forma natural como em uma conversa de WhatsApp. " +
+            "Evite parágrafos longos e explicações detalhadas.";
+
         messages.Add(
             new GroqMessage(
                 "system",
-                currentCharacter.systemPrompt
+                systemPromptWithLengthLimit
             )
         );
 
