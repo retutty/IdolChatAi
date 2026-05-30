@@ -65,18 +65,46 @@ public class ChatManager : MonoBehaviour
             JsonUtility.FromJson<CharacterDatabase>(json);
     }
 
-    public void SelectCharacter(string characterId)
+    void EnsureConversation(string characterId)
     {
-        currentCharacter =
-            database.characters.Find(
-                c => c.id == characterId
-            );
-
         if (!conversations.ContainsKey(characterId))
         {
             conversations[characterId] =
                 new List<MessageData>();
         }
+    }
+
+    public void SelectCharacter(CharacterData character)
+    {
+        if (character == null)
+            return;
+
+        currentCharacter = character;
+
+        EnsureConversation(character.id);
+
+        LoadConversation(character.id);
+    }
+
+    public void SelectCharacter(string characterId)
+    {
+        if (database == null || database.characters == null)
+        {
+            LoadCharacters();
+        }
+
+        if (database == null || database.characters == null)
+            return;
+
+        currentCharacter =
+            database.characters.Find(
+                c => c.id == characterId
+            );
+
+        if (currentCharacter == null)
+            return;
+
+        EnsureConversation(characterId);
 
         LoadConversation(characterId);
     }
@@ -135,7 +163,7 @@ public class ChatManager : MonoBehaviour
         string systemPromptWithLengthLimit =
             currentCharacter.systemPrompt +
             "\n\n[IMPORTANTE] Suas respostas devem ser CURTAS e CONCISAS, com no máximo 6-8 linhas. " +
-            "Seja direto, responda de forma natural como em uma conversa de WhatsApp. " +
+            "Seja direto, responda de forma natural como em uma conversa por mensagens. " +
             "Evite parágrafos longos e explicações detalhadas.";
 
         messages.Add(

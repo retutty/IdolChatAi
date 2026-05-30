@@ -6,21 +6,20 @@ public class ContactButton : MonoBehaviour
 {
     public TMP_Text contactNameText;
 
-    private string characterId;
+    private CharacterData character;
 
-    private ChatManager chatManager;
+    private ScreenControl2 screenControl2;
 
     public void Setup(
         CharacterData character,
-        ChatManager manager
+        ScreenControl2 screenControl2
     )
     {
+        this.character = character;
+        this.screenControl2 = screenControl2;
+
         contactNameText.text =
             character.characterName;
-
-        characterId = character.id;
-
-        chatManager = manager;
 
         GetComponent<Button>()
             .onClick
@@ -29,6 +28,9 @@ public class ContactButton : MonoBehaviour
 
     void OnClick()
     {
-        chatManager.SelectCharacter(characterId);
+        if (screenControl2 != null)
+        {
+            screenControl2.OpenConversation(character);
+        }
     }
 }

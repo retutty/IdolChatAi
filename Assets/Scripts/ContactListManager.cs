@@ -9,9 +9,17 @@ public class ContactListManager : MonoBehaviour
     public GameObject contactPrefab;
 
     [Header("Managers")]
-    public ChatManager chatManager;
+    public ScreenControl2 screenControl2;
 
     private CharacterDatabase database;
+
+    private void Awake()
+    {
+        if (screenControl2 == null)
+        {
+            screenControl2 = FindObjectOfType<ScreenControl2>();
+        }
+    }
 
     void Start()
     {
@@ -51,7 +59,7 @@ public class ContactListManager : MonoBehaviour
 
             button.Setup(
                 character,
-                chatManager
+                screenControl2
             );
         }
     }
