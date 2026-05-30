@@ -1,5 +1,8 @@
+using System;
+using System.Collections;
 using System.IO;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class ContactListManager : MonoBehaviour
 {
@@ -17,30 +20,76 @@ public class ContactListManager : MonoBehaviour
     {
         if (screenControl2 == null)
         {
-            screenControl2 = FindObjectOfType<ScreenControl2>();
+            screenControl2 = FindAnyObjectByType<ScreenControl2>();
         }
     }
 
     void Start()
     {
-        LoadCharacters();
+        StartCoroutine(Initialize());
+    }
+
+    IEnumerator Initialize()
+    {
+        yield return LoadStreamingAssetsText(
+            "characters.json",
+            json =>
+            {
+                database = JsonUtility.FromJson<CharacterDatabase>(json);
+            }
+        );
+
+        if (database == null || database.characters == null)
+        {
+            Debug.LogError("Nenhum contato foi carregado porque a base de personagens está vazia.");
+            yield break;
+        }
 
         CreateContacts();
     }
 
-    void LoadCharacters()
+    IEnumerator LoadStreamingAssetsText(
+        string fileName,
+        Action<string> onSuccess
+    )
     {
-        string path =
-            Path.Combine(
-                Application.streamingAssetsPath,
-                "characters.json"
+        string path = Path.Combine(
+            Application.streamingAssetsPath,
+            fileName
+        );
+
+        if (Application.platform == RuntimePlatform.Android
+            || Application.platform == RuntimePlatform.WebGLPlayer)
+        {
+            using (UnityWebRequest request = UnityWebRequest.Get(path))
+            {
+                yield return request.SendWebRequest();
+
+                if (request.result != UnityWebRequest.Result.Success)
+                {
+                    Debug.LogError(
+                        $"Falha ao carregar {fileName}: {request.error}"
+                    );
+
+                    yield break;
+                }
+
+                onSuccess?.Invoke(request.downloadHandler.text);
+            }
+
+            yield break;
+        }
+
+        if (!File.Exists(path))
+        {
+            Debug.LogError(
+                $"Arquivo não encontrado em StreamingAssets: {path}"
             );
 
-        string json =
-            File.ReadAllText(path);
+            yield break;
+        }
 
-        database =
-            JsonUtility.FromJson<CharacterDatabase>(json);
+        onSuccess?.Invoke(File.ReadAllText(path));
     }
 
     void CreateContacts()

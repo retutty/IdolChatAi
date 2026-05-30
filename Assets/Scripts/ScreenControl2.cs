@@ -22,7 +22,7 @@ public class ScreenControl2 : MonoBehaviour
     {
         if (chatManager == null)
         {
-            chatManager = FindObjectOfType<ChatManager>();
+            chatManager = FindAnyObjectByType<ChatManager>();
         }
 
         if (voltarButton != null)

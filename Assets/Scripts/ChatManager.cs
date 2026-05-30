@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -29,40 +30,71 @@ public class ChatManager : MonoBehaviour
 
     void Start()
     {
-        LoadConfig();
-        LoadCharacters();
+        StartCoroutine(Initialize());
     }
 
-    void LoadConfig()
+    IEnumerator Initialize()
     {
-        string path =
-            Path.Combine(
-                Application.streamingAssetsPath,
-                "config.json"
-            );
+        yield return LoadStreamingAssetsText(
+            "config.json",
+            json =>
+            {
+                ConfigData config = JsonUtility.FromJson<ConfigData>(json);
+                apiKey = config.apiKey;
+            }
+        );
 
-        string json =
-            File.ReadAllText(path);
-
-        ConfigData config =
-            JsonUtility.FromJson<ConfigData>(json);
-
-        apiKey = config.apiKey;
+        yield return LoadStreamingAssetsText(
+            "characters.json",
+            json =>
+            {
+                database = JsonUtility.FromJson<CharacterDatabase>(json);
+            }
+        );
     }
 
-    void LoadCharacters()
+    IEnumerator LoadStreamingAssetsText(
+        string fileName,
+        Action<string> onSuccess
+    )
     {
-        string path =
-            Path.Combine(
-                Application.streamingAssetsPath,
-                "characters.json"
+        string path = Path.Combine(
+            Application.streamingAssetsPath,
+            fileName
+        );
+
+        if (Application.platform == RuntimePlatform.Android
+            || Application.platform == RuntimePlatform.WebGLPlayer)
+        {
+            using (UnityWebRequest request = UnityWebRequest.Get(path))
+            {
+                yield return request.SendWebRequest();
+
+                if (request.result != UnityWebRequest.Result.Success)
+                {
+                    Debug.LogError(
+                        $"Falha ao carregar {fileName}: {request.error}"
+                    );
+
+                    yield break;
+                }
+
+                onSuccess?.Invoke(request.downloadHandler.text);
+            }
+
+            yield break;
+        }
+
+        if (!File.Exists(path))
+        {
+            Debug.LogError(
+                $"Arquivo não encontrado em StreamingAssets: {path}"
             );
 
-        string json =
-            File.ReadAllText(path);
+            yield break;
+        }
 
-        database =
-            JsonUtility.FromJson<CharacterDatabase>(json);
+        onSuccess?.Invoke(File.ReadAllText(path));
     }
 
     void EnsureConversation(string characterId)
@@ -90,7 +122,8 @@ public class ChatManager : MonoBehaviour
     {
         if (database == null || database.characters == null)
         {
-            LoadCharacters();
+            StartCoroutine(LoadCharactersAndSelect(characterId));
+            return;
         }
 
         if (database == null || database.characters == null)
@@ -107,6 +140,24 @@ public class ChatManager : MonoBehaviour
         EnsureConversation(characterId);
 
         LoadConversation(characterId);
+    }
+
+    IEnumerator LoadCharactersAndSelect(string characterId)
+    {
+        yield return LoadStreamingAssetsText(
+            "characters.json",
+            json =>
+            {
+                database = JsonUtility.FromJson<CharacterDatabase>(json);
+            }
+        );
+
+        if (database == null || database.characters == null)
+        {
+            yield break;
+        }
+
+        SelectCharacter(characterId);
     }
 
     void LoadConversation(string characterId)
