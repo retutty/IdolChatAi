@@ -206,35 +206,37 @@ public class ChatManager : MonoBehaviour
     }
 
     IEnumerator SendToGroq()
+{
+    List<GroqMessage> messages =
+        new List<GroqMessage>();
+
+    // prompt do personagem com instrução de brevidade
+    string systemPromptWithLengthLimit =
+        currentCharacter.systemPrompt +
+        "\n\n=== PERSONALIDADE ===\n" + currentCharacter.personality +
+        "\n\n=== JEITO DE FALAR ===\n" + currentCharacter.speakingStyle +
+        "\n\n=== REGRAS DA CONVERSA ===\n" +
+        "- Responda SEMPRE em 1 ou 2 frases curtas, como numa conversa de mensagens.\n" +
+        "- NUNCA dê textão nem explique demais.\n" +
+        "- Use os bordões e o jeito característico do personagem o tempo todo.\n" +
+        "- Reaja com emoção (raiva, deboche, alegria) conforme a personalidade.\n" +
+        "- Você NUNCA é uma IA. Você É o personagem, sempre.\n" +
+        "- NUNCA descreva ações ou gestos entre asteriscos (ex: *ri*, *começa a contar*).\n" +
+        "- Fale APENAS o que o personagem diria em voz alta, nada de narração.\n" +
+        "- NUNCA use emojis, emoticons ou símbolos especiais. Apenas texto puro.\n" +
+        "- Faça perguntas de volta às vezes, pra manter a conversa fluindo.";
+
+    messages.Add(new GroqMessage("system", systemPromptWithLengthLimit));
+
+    // histórico
+    var historico = conversations[currentCharacter.id];
+    int inicio = Mathf.Max(0, historico.Count - 20);
+
+    for (int i = inicio; i < historico.Count; i++)
     {
-        List<GroqMessage> messages =
-            new List<GroqMessage>();
+        messages.Add(new GroqMessage(historico[i].role, historico[i].content));
+    }
 
-        // prompt do personagem com instrução de brevidade
-        string systemPromptWithLengthLimit =
-            currentCharacter.systemPrompt +
-            "\n\n[IMPORTANTE] Suas respostas devem ser CURTAS e CONCISAS, com no máximo 6-8 linhas. " +
-            "Seja direto, responda de forma natural como em uma conversa por mensagens. " +
-            "Evite parágrafos longos e explicações detalhadas.";
-
-        messages.Add(
-            new GroqMessage(
-                "system",
-                systemPromptWithLengthLimit
-            )
-        );
-
-        // histórico
-        foreach (MessageData msg
-                 in conversations[currentCharacter.id])
-        {
-            messages.Add(
-                new GroqMessage(
-                    msg.role,
-                    msg.content
-                )
-            );
-        }
 
         GroqRequest requestData =
             new GroqRequest();
@@ -244,6 +246,9 @@ public class ChatManager : MonoBehaviour
 
         requestData.messages =
             messages;
+        requestData.max_tokens = 120;
+
+        requestData.temperature = 0.95f;
 
         string json =
             JsonUtility.ToJson(requestData);

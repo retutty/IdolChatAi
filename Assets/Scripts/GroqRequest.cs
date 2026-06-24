@@ -5,8 +5,9 @@ using System.Collections.Generic;
 public class GroqRequest
 {
     public string model;
-
     public List<GroqMessage> messages;
+    public int max_tokens; 
+    public float temperature;
 }
 
 [Serializable]
